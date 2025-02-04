@@ -21,8 +21,8 @@ public class ProductController {
     public ResponseEntity<?> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "asc") String sortDirection,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "") String sortDirection,
+            @RequestParam(defaultValue = "") String sortBy,
             @RequestParam(required = false) String name
     ) {
         Page<Product> result = productService.findAllProducts(
