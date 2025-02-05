@@ -5,6 +5,7 @@ import com.learnjava.arifudinJSB.repositorys.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +21,26 @@ public class ProductService {
 
     // Read (GET All with Pagination)
     public Page<Product> findAllProducts(int page, int size, String sortDirection, String sortBy, String name) {
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
-        return productRepository.findAllWithFilter(name, pageRequest);
+//        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+//        PageRequest pageRequest = PageRequest.of(page, size, sort);
+//        return productRepository.findAllWithFilter(name, pageRequest);
+
+        // ✅ Validasi sortDirection
+        Sort.Direction direction;
+        if (sortDirection == null || sortDirection.trim().isEmpty() ||
+                (!sortDirection.equalsIgnoreCase("asc") && !sortDirection.equalsIgnoreCase("desc"))) {
+            direction = Sort.Direction.ASC; // Default ASC jika null/empty/invalid
+        } else {
+            direction = Sort.Direction.fromString(sortDirection);
+        }
+
+        // ✅ Default sortBy jika null atau kosong
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            sortBy = "id"; // Default sortBy = "id"
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return productRepository.findAllWithFilter(name, pageable);
     }
 
     // Read (GET Single Product)
