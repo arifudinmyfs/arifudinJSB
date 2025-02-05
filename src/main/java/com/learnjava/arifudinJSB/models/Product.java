@@ -1,9 +1,13 @@
 package com.learnjava.arifudinJSB.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "products")
 public class Product {
