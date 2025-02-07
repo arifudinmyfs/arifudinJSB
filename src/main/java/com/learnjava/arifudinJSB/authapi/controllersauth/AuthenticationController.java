@@ -1,38 +1,43 @@
 package com.learnjava.arifudinJSB.authapi.controllersauth;
 
-import com.learnjava.arifudinJSB.authapi.modelsauth.Login;
-import com.learnjava.arifudinJSB.authapi.dto.LoginUserDto;
+import com.learnjava.arifudinJSB.authapi.modelsauth.User;
+import com.learnjava.arifudinJSB.authapi.dto.UserDto;
 import com.learnjava.arifudinJSB.authapi.dto.RegisterUserDto;
-import com.learnjava.arifudinJSB.authapi.responses.LoginResponse;
+import com.learnjava.arifudinJSB.authapi.responses.UserResponse;
 import com.learnjava.arifudinJSB.authapi.servicesauth.AuthenticationService;
 import com.learnjava.arifudinJSB.authapi.servicesauth.JwtService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 public class AuthenticationController {
     private final JwtService jwtService;
+
     private final AuthenticationService authenticationService;
 
+    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
+        this.jwtService = jwtService;
+        this.authenticationService = authenticationService;
+    }
+
     @PostMapping("/signup")
-    public ResponseEntity<Login> register(@RequestBody RegisterUserDto registerUserDto) {
-        return ResponseEntity.ok(authenticationService.signup(registerUserDto));
+    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
+        User registeredUser = authenticationService.signup(registerUserDto);
+
+        return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        Login authenticatedUser = authenticationService.authenticate(loginUserDto);
+    public ResponseEntity<UserResponse> authenticate(@RequestBody UserDto userDto) {
+        User authenticatedUser = authenticationService.authenticate(userDto);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
-        long expiresAt = System.currentTimeMillis() + jwtService.getJwtExpiration(); // Ambil nilai expiration time
 
-        LoginResponse loginResponse = new LoginResponse(jwtToken);
+        UserResponse userResponse = new UserResponse();
+        userResponse.setToken(jwtToken);
+        userResponse.setExpiresIn(jwtService.getExpirationTime());
 
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.ok(userResponse);
     }
-
-
 }

@@ -44,6 +44,10 @@ public class JwtService {
         return extractUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
+    public long getExpirationTime() {
+        return jwtExpiration;
+    }
+
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts.builder()
                 .setClaims(extraClaims)

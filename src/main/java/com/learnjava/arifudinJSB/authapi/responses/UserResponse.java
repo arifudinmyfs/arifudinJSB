@@ -7,13 +7,13 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class LoginResponse {
+public class UserResponse {
 //    private String email;
 //    private String fullName;
     private String token;
     private long expiresIn;
-    public LoginResponse(String pToken){
-        this.token = pToken;
-    }
+//    public String getToken() {
+//        return token;
+//    }
 
 }

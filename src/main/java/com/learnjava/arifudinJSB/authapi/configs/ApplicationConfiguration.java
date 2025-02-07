@@ -1,6 +1,6 @@
 package com.learnjava.arifudinJSB.authapi.configs;
 
-import com.learnjava.arifudinJSB.authapi.repositoryauth.LoginRepository;
+import com.learnjava.arifudinJSB.authapi.repositoryauth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,11 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
-    private final LoginRepository loginRepository;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> loginRepository.findByEmail(username)
+        return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
