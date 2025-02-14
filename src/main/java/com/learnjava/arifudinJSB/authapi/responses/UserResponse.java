@@ -8,12 +8,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserResponse {
-//    private String email;
-//    private String fullName;
     private String token;
     private long expiresIn;
-//    public String getToken() {
-//        return token;
-//    }
+    private UserInfo user;
+
+    @Getter
+    @Setter
+    public static class UserInfo {
+        private String username;
+        private String email;
+    }
+
 
 }

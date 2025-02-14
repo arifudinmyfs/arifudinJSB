@@ -51,6 +51,11 @@ public class AuthController {
         userResponse.setToken(jwtToken);
         userResponse.setExpiresIn(jwtService.getExpirationTime());
 
+        UserResponse.UserInfo userInfo = new UserResponse.UserInfo();
+        userInfo.setUsername(authenticatedUser.getFullName());
+        userInfo.setEmail(authenticatedUser.getEmail());
+        userResponse.setUser(userInfo);
+
         return ResponseEntity.ok(userResponse);
     }
 
@@ -64,7 +69,7 @@ public class AuthController {
 
         } catch (RuntimeException ex) {
             // Tangkap exception dan kembalikan status 401 Unauthorized
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
 
         } catch (Exception ex) {
             // Handling untuk error lainnya

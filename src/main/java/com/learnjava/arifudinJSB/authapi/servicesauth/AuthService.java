@@ -47,7 +47,7 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
 
-        return userRepository.findByEmail(input.getEmail()).orElseThrow();
+        return userRepository.findByEmail(input.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     // Refresh Access Token Menggunakan Refresh Token
