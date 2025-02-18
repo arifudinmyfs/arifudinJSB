@@ -1,7 +1,6 @@
 package com.learnjava.arifudinJSB.authapi.controllersauth;
 
 import com.learnjava.arifudinJSB.authapi.dto.LoginRequestDto;
-import com.learnjava.arifudinJSB.authapi.dto.RefreshTokenRequest;
 import com.learnjava.arifudinJSB.authapi.dto.TokenResponse;
 import com.learnjava.arifudinJSB.authapi.modelsauth.User;
 import com.learnjava.arifudinJSB.authapi.dto.RegisterUserDto;
@@ -11,8 +10,6 @@ import com.learnjava.arifudinJSB.authapi.servicesauth.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -59,22 +56,22 @@ public class AuthController {
         return ResponseEntity.ok(userResponse);
     }
 
-    // Endpoint untuk Refresh Token
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
-        try {
-            // Logika normal pemanggilan service untuk refresh token
-            TokenResponse response = authService.refreshAccessToken(request);
-            return ResponseEntity.ok(response);
-
-        } catch (RuntimeException ex) {
-            // Tangkap exception dan kembalikan status 401 Unauthorized
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
-
-        } catch (Exception ex) {
-            // Handling untuk error lainnya
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan pada server.");
+    public ResponseEntity<TokenResponse> refreshToken(@RequestHeader("Authorization") String authorizationHeader) {
+        // Check if the header contains "Bearer"
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
         }
+
+        // Extract token by removing "Bearer " prefix
+        String refreshToken = authorizationHeader.replace("Bearer ", "");
+
+        // Call the AuthService to refresh the token
+        TokenResponse tokenResponse = authService.refreshAccessToken(refreshToken);
+
+        // Return the new tokens
+        return ResponseEntity.ok(tokenResponse);
     }
+
 
 }

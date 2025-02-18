@@ -26,25 +26,41 @@ public class JwtService {
     @Value("${security.jwt.refresh-expiration-time}")
     private Long refreshTokenExpiration; // Waktu kedaluwarsa Refresh Token
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public String getUserName(String token) {
+        Claims claims = this.rawTokenToClaims(token);
+        String userName = claims.getSubject();
+
+        return userName;
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        return claimsResolver.apply(extractAllClaims(token));
-    }
+//    public String extractUsername(String token) {
+//        return extractClaim(token, Claims::getSubject);
+//    }
+//
+//    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+//        return claimsResolver.apply(extractAllClaims(token));
+//    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(Map.of(), userDetails);
-//        return generateToken(userDetails, )
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        return extractUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
+    private Claims rawTokenToClaims(String token) {
+        String oldToken = token.replace("Bearer ", "");
+
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(oldToken)
+                .getBody();
+        return claims;
+    }
+
+    public boolean isTokenValid(String token) {
+        return this.rawTokenToClaims(token).getExpiration().before(new Date());
     }
 
     public long getExpirationTime() {
@@ -60,7 +76,14 @@ public class JwtService {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
-    // Generate Refresh Token
+
+    public String refreshTokenData(String token) {
+        Claims claims = this.rawTokenToClaims(token);
+        String userName = claims.getSubject();
+
+        return this.generateRefreshToken(userName);
+    }
+
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -68,14 +91,6 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 
     private Claims extractAllClaims(String token) {
